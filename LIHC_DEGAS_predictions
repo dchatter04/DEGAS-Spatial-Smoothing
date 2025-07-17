@@ -1,0 +1,140 @@
+# In vscode, open a terminal, and type the following bash commands:
+
+# srun -p gpu-debug -A r00257 --time=01:00:00 --gpus-per-node v100:1 --mem 100G --pty bash
+# srun -p gpu -A r00257 --time=02:00:00 --gpus-per-node v100:1 --mem 50G --pty bash
+# srun -p general -A r00257 --time=02:00:00 --mem 50G --pty bash
+# srun -p gpu -A r00257 --time=02:00:00 -gpus-per-node v100:1 --mem 100G --pty bash
+
+# module load r/4.2.1
+# module load python/gpu/3.10.10
+# R
+
+
+library(devtools)
+library(withr)
+library(rprojroot)
+library(tidyverse)
+library(magrittr)
+library(here)
+# If DEGAS hasn't been installed, do so using this command (after creating a r-packages file in your root directory)
+#with_libpaths(new = '~/r-packages', install_github("tsteelejohnson91/DEGAS"))
+library(DEGAS)
+
+set.seed(2)
+
+meta_data_columns <- c("V1", "cell_id", "slide_ID_numeric", "Run_Tissue_name", "x_FOV_px", "y_FOV_px", "qcFlagsFOV", "cellType", "niche")
+
+# What is the name of this experiment/sample?
+sample_name <- "liver_coxmyx"
+
+# Patient data
+## RNA-seq
+patDat <- data.table::fread('/N/project/degas_st/cosmyx/data/TCGA/patDat.csv', sep = ",") # Tumor and normal tissue
+# patDat <- data.table::fread('/N/project/degas_st/cosmyx/data/TCGA/patDat_tumor.csv', sep = ",") # Only tumor tissue
+
+## Clinical outcomes
+patLab <- data.table::fread('/N/project/degas_st/cosmyx/data/Reference_liver/patLab.csv', sep = ",")
+
+# Need non NA follow up time and status
+patLab <- patLab %>% filter(!is.na(OS_time))
+
+# only retain these same patients in patDat, and ordered the same way
+patDat <- patDat %>% inner_join(patLab)
+
+# ST data (cosmyx)
+meta_df <- read_csv('/N/project/degas_st/CosMx_liver_data/cosmx_liver_metadata.csv') # To get the coordinates
+
+st_data <- data.table::fread('/N/project/degas_st/cosmyx/data/processed/liver/cosmyx_liver_data.csv')
+
+st_data <- st_data %>%
+  mutate(FOV = str_replace(str_replace(cell_id, "c_[:digit:]_", ""), "_[:digit:].*$", ""), .before = cell_id)
+
+common_cols <- intersect(meta_df %>% colnames, st_data %>% colnames)
+
+st_data <- 
+  left_join(
+    st_data,
+    meta_df %>% 
+      select(
+        all_of(common_cols), # the columns for joining data properly
+        x_slide_mm, y_slide_mm)) # the actual real coordinates of the points to use for plotting
+
+st_data <- st_data %>%
+  relocate(contains('slide_mm'), .before = FOV)
+
+# Find intersecting genes for feature selection
+intersecting_genes <-
+  intersect(colnames(st_data), colnames(patDat %>% select(-OS_status, -OS_time)))
+
+
+
+# Feature selection (top 200 most variable genes)
+genes <- patDat %>% select(all_of(intersecting_genes)) %>% apply(2, var) %>% sort(decreasing=TRUE) %>% names() %>% head(200)
+
+
+# Initialize function to run DEGAS iteratively across increasing number of feature sets.
+runDEGASBlankCox <- function(stDat, patDat, patLab, genes, sample_name, iter) {
+  
+  path.data = '/N/project/degas_st/cosmyx/data/DEGAS/'
+  path.result = '/N/project/degas_st/cosmyx/liver_itcr/'
+  initDEGAS()
+  DEGAS.toolsPath <<- paste0("/N/project/degas_st/DEGAS/tools/")
+  # overwrite the DEGAS path with your python location (module load deeplearning/2.9.1)
+  DEGAS.pyloc <<- '/N/soft/rhel8/deeplearning/Python-3.10.10/bin/python3.10'
+  tmpDir = paste0(path.result, 'tmp/')
+  #DEGAS.seed <<- 100
+
+  #/N/soft/rhel8/python/gnu/3.10.5/lib/python3.10/site-packages/tensorflow/__init__.py
+  #/N/soft/rhel8/deeplearning/Python-3.10.10/bin/python3.10
+  #/geode2/soft/hps/rhel7/deeplearning/Python-3.10.5/bin/python3.10
+  #path.data = ''
+  #path.result = ''
+  #initDEGAS()
+  #tmpDir = paste0(path.result, 'tmp/')
+
+  set_seed_term(2)
+  ccoxModel_PRAD =
+    runCCMTLBag(
+      scExp = stDat %>% select(all_of(genes)),
+      scLab = NULL, #stLab %>% pull(cluster) %>% toOneHot(),
+      patExp = patDat %>% select(all_of(genes)),
+      patLab = patDat %>% select(OS_time, OS_status) %>% apply(2, as.numeric),
+      tmpDir = tmpDir,
+      'BlankCox','DenseNet',3,5)
+
+  saveRDS(ccoxModel_PRAD, file = paste0('/N/project/degas_st/cosmyx/liver_itcr/', sample_name, "_", iter, "_",  Sys.Date(), '.RDS'))
+
+  model_output <-
+    tibble(
+      as_tibble(predClassBag(ccoxModel_PRAD,
+                             stDat %>% select(all_of(genes)),
+                             'pat')),
+      fov = stDat$FOV,
+      coord1 = stDat$x_slide_mm,
+      coord2 = stDat$y_slide_mm,
+      sample = stDat$slide_ID_numeric,
+      cellType = stDat$cellType,
+      niche = stDat$niche)
+
+  colnames(model_output)[1] <- "Hazard"
+
+  model_output %<>% mutate(Haz_scaled = (Hazard - min(Hazard)) / max(Hazard), .before = 'Hazard')
+
+  return(model_output)
+}
+
+
+for (i in c(10, 20, 40, 80, 120, 160, 200)) {
+  output <-
+    runDEGASBlankCox(stDat = st_data,
+                     patDat = patDat,
+                     patLab = patLab,
+                     genes = genes[1:i],
+                     sample_name = sample_name,
+                     iter = i)
+  iter = i
+
+  med <- output %>% pull(Hazard) %>% median
+
+  write_csv(output, file = paste0('/N/project/degas_st/cosmyx/liver_itcr/', sample_name, "_", iter, "_",  Sys.Date(), '.csv'))
+}
