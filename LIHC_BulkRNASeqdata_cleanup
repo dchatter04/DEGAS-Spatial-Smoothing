@@ -2,8 +2,9 @@
 
 library(tidyverse)
 library(DEGAS)
+####### ******* the LIHC reference data was downloaded from http://firebrowse.org/?cohort=LIHC&download_dialog=true *********************
 
-patDat <- read.delim('/N/project/degas_st/CosMx_liver_data/Reference_liver/gdac.broadinstitute.org_LIHC.Merge_rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.Level_3.2016012800.0.0/LIHC.rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.data.txt', header = FALSE)
+patDat <- read.delim('~/gdac.broadinstitute.org_LIHC.Merge_rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.Level_3.2016012800.0.0/LIHC.rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.data.txt', header = FALSE)
 
 patDat <- patDat %>% t() %>% as_tibble()
 
@@ -40,14 +41,13 @@ patDat <- patDat %>% mutate(PATIENT_ID = tolower(PATIENT_ID))
 
 patDat_tumor <- patDat_tumor %>% mutate(PATIENT_ID = tolower(PATIENT_ID))
 
-# Here's the RNA
+# Here's the RNA-seq gene expression file
 
-data.table::fwrite(patDat, file = '/N/project/degas_st/cosmyx/data/TCGA/patDat.csv', sep = ",")
-data.table::fwrite(patDat_tumor, file = '/N/project/degas_st/cosmyx/data/TCGA/patDat_tumor.csv', sep = ",")
+data.table::fwrite(patDat, file = '~/patDat.csv', sep = ",")
 
 
-# clinical data
-clin_data <- read.delim('/Users/dchatter/Library/CloudStorage/OneDrive-IndianaUniversity/DEGAS/Reference_liver/gdac.broadinstitute.org_LIHC.Clinical_Pick_Tier1.Level_4.2016012800.0.0/LIHC.clin.merged.picked.txt', header = FALSE) %>% t() %>% as.data.frame()
+# This is the clinical data with survival information
+clin_data <- read.delim('~/gdac.broadinstitute.org_LIHC.Clinical_Pick_Tier1.Level_4.2016012800.0.0/LIHC.clin.merged.picked.txt', header = FALSE) %>% t() %>% as.data.frame()
 
 colnames(clin_data) <- slice(clin_data, 1)
 clin_data <- clin_data[-1,]
@@ -61,4 +61,4 @@ clin_data %>%
                            days_to_death,
                            days_to_last_followup)) %>%
   select(PATIENT_ID, OS_time, OS_status) %>%
-  data.table::fwrite('/Users/dchatter/Library/CloudStorage/OneDrive-IndianaUniversity/DEGAS/Reference_liver/patLab.csv')
+  data.table::fwrite('~/patLab.csv')
