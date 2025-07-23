@@ -2,7 +2,7 @@ library(tidyverse)
 library(DEGAS)
 
 # Read in data
-patDat <- data.table::fread('~/T2D_bulkRNAseq.csv')
+patDat <- data.table::fread('~/T2D_bulkRNAseqdat.csv')
 
 # Fix column names
 patnames <- colnames(patDat)[-1]
