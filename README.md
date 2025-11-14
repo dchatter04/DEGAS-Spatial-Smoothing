@@ -18,8 +18,7 @@ install.packages("devtools")
 * Step 4 Install DEGAS in R
 ```R
 library(devtools)
-devtools::install_github("tsteelejohnson91/DEGAS") # For DEGAS version 1
-devtools::install_github("ElliotLiu1997/DEGASv2", subdir = "DEGAS_R") #For DEGAS version2
+devtools::install_github("tsteelejohnson91/DEGAS") 
 ```
 * Step 5 Install packages useful for downstream analysis in R
 ```R
