@@ -67,10 +67,10 @@ install.packages("ggplot2")
 
 * Analysis 1 For codes on Liver Hepatocellular Carcinoma datasets (LIHC) from Nanostring's CosMx platform refer to https://github.com/dchatter04/DEGAS-Spatial-Smoothing/tree/main/LIHC%20CosMx
    - Follow the Readme_LIHC_CosMx file within the folder for instructions
-   - Source of the scSRT dataset:
-   - Source of the reference patient-level bulk RNA-seq dataset:
+   - Source of the scSRT dataset: https://nanostring.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-liver-rna-ffpe-dataset/
+   - Source of the reference patient-level bulk RNA-seq dataset: https://portal.gdc.cancer.gov/projects/TCGA-LIHC
 * Analysis 2 For codes on Type 2 Diabetes (T2D) and non-diabetic samples coming from 10X Genomics Xenium platform, refer to https://github.com/dchatter04/DEGAS-Spatial-Smoothing/tree/main/T2D%20Xenium
    - Follow the Readme_T2D_Xenium file within the folder for instructions
-   - Source of the scSRT dataset:
-   - Source of the reference patient-level bulk RNA-seq dataset:
+   - Source of the scSRT dataset: https://www.synapse.org/#!Synapse:syn68699752
+   - Source of the reference patient-level bulk RNA-seq dataset: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE159984
 
