@@ -12,10 +12,10 @@ source("~/DEGAS_functions_for_smoothing.R")
 
 # Loading Xenium data
 #######************ The Xenium T2D data is available in https://www.synapse.org/Synapse:syn68699752/files/ ***********
-S0017155_ND = LoadXenium("~/output-XETG00126__0017155__ND16091_ND__20231010__204554")
-S0017155_T2D = LoadXenium("~/output-XETG00126__0017155__ND16154_T2D__20231010__204554")
-S0017308_T2D = LoadXenium("~/output-XETG00126__0017308__ND16090_T2D__20231010__204554")
-S0017308_ND = LoadXenium("~/output-XETG00126__0017308__ND16091_ND__20231010__204554")
+S0017155_ND = LoadXenium("~/output-XETG00126__0017155__ND16091_ND__20231010__204554") #this is ND_1 sample
+S0017155_T2D = LoadXenium("~/output-XETG00126__0017155__ND16154_T2D__20231010__204554") $this is T2D_1 sample
+S0017308_T2D = LoadXenium("~/output-XETG00126__0017308__ND16090_T2D__20231010__204554") #this is T2D_2 sample
+S0017308_ND = LoadXenium("~/output-XETG00126__0017308__ND16091_ND__20231010__204554") # this is ND_2 sample
 # Formatting Xenium data
 nd1 = S0017155_ND@assays$Xenium$counts
 rownames(nd1) = rownames(S0017155_ND)
