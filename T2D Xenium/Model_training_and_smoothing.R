@@ -110,10 +110,10 @@ saveRDS(df,file="~/dfv2.rds")
 df = readRDS("~/dfv2.rds")
 
 # Creating plots--------------
-smoothed_nd1 = readRDS("~/smoothed_nd1.rds")
-smoothed_nd2 = readRDS("~/smoothed_nd2.rds")
-smoothed_t2d1 = readRDS("~/smoothed_t2d1.rds")
-smoothed_t2d2 = readRDS("~/smoothed_t2d2.rds")
+smoothed_nd1 = readRDS("~/swSmoothed_ND1.rds")
+smoothed_nd2 = readRDS("~/swSmoothed_ND2.rds")
+smoothed_t2d1 = readRDS("~/swSmoothed_T2D1.rds")
+smoothed_t2d2 = readRDS("~/swSmoothed_T2D2.rds")
 smoothed2 = rbind(smoothed_nd1,smoothed_t2d1,smoothed_nd2,smoothed_t2d2)
 smoothed2_subset <- smoothed2[which(smoothed2$barcodes%in%df$barcodes),]
 df_subset <- df[which(df$barcodes%in%smoothed2$barcodes),]
