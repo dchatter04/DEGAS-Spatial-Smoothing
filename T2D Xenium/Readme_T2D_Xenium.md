@@ -2,9 +2,9 @@
 
 ## **Step 1 Bulk RNA-seq data cleanup**
 
-* Download the bulkRNA_seq_Diabetes.csv file (<a href="https://github.com/dchatter04/DEGAS-Spatial-Smoothing/blob/main/T2D%20Xenium/bulkRNA_seq_Diabetes.csv">[https://github.com/dchatter04/DEGAS-Spatial-Smoothing/blob/main/T2D%20Xenium/bulkRNA_seq_Diabetes.csv](https://github.com/dchatter04/DEGAS-Spatial-Smoothing/blob/main/T2D%20Xenium/bulkRNA_seq_Diabetes.csv)</a>)
-  into your local Drive.
-* Run the lines in script BulkRNA-seq_datatcleanup.R (<a href="https://github.com/dchatter04/DEGAS-Spatial-Smoothing/blob/main/T2D%20Xenium/BulkRNA-seq_datacleanup.R">[https://github.com/dchatter04/DEGAS-Spatial-Smoothing/blob/main/T2D%20Xenium/BulkRNA-seq_datacleanup.R](https://github.com/dchatter04/DEGAS-Spatial-Smoothing/blob/main/T2D%20Xenium/BulkRNA-seq_datacleanup.R)</a>)
+* Download the **bulkRNA_seq_Diabetes.csv** file 
+  into your local Drive. Source of the data is GSE159984 (Marselli et. al.; Cell Reports, 33(9), 2020).
+* Run the lines in script **BulkRNA-seq_datatcleanup.R** 
 * Preprocessed patient-level gene expression data will be stored as **patDat.csv** and the labels of each patient
   whether they are classified as Type 2 Diabetic (t2d) or non-diabetic (no-diasese) is provided in **patLab.csv** file.
 
