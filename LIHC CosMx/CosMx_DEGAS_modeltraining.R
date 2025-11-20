@@ -1,14 +1,6 @@
-# In vscode, open a terminal, and type the following bash commands:
 
-# srun -p gpu-debug -A r00257 --time=01:00:00 --gpus-per-node v100:1 --mem 100G --pty bash
-# srun -p gpu -A r00257 --time=02:00:00 --gpus-per-node v100:1 --mem 50G --pty bash
-# srun -p general -A r00257 --time=02:00:00 --mem 50G --pty bash
-# srun -p gpu -A r00257 --time=02:00:00 -gpus-per-node v100:1 --mem 100G --pty bash
-
-# module load r/4.4.1
-# module load python/gpu/3.10.10
-# R
-
+# r/4.4.1
+# python/3.10.10
 
 library(devtools)
 library(withr)
@@ -18,7 +10,7 @@ library(magrittr)
 library(here)
 # If DEGAS hasn't been installed, do so using this command (after creating a r-packages file in your root directory)
 #with_libpaths(new = '~/r-packages', install_github("tsteelejohnson91/DEGAS"))
-library(DEGAS)
+#library(DEGAS)
 library(DEGAS, lib.loc = "/N/project/degas_st/DEGAS_package")
 
 set.seed(2)
@@ -31,7 +23,6 @@ sample_name <- "lihc_200genes"
 # Patient data
 ## RNA-seq
 patDat <- data.table::fread('/N/project/degas_st/cosmyx/data/TCGA/patDat.csv', sep = ",") # Tumor and normal tissue
-# patDat <- data.table::fread('/N/project/degas_st/cosmyx/data/TCGA/patDat_tumor.csv', sep = ",") # Only tumor tissue
 
 ## Clinical outcomes
 patLab <- data.table::fread('/N/project/degas_st/cosmyx/data/Reference_liver/patLab.csv', sep = ",")
@@ -73,17 +64,17 @@ intersecting_genes <-
 genes <- patDat %>% select(all_of(intersecting_genes)) %>% apply(2, var) %>% sort(decreasing=TRUE) %>% names() %>% head(200)
 
 
-# Initialize function to run DEGAS iteratively across increasing number of feature sets.
+# Run the DEGAS model training for given  scSRT gene-expression data, patient label, and patient gene-expresiion
+
 runDEGASBlankCox <- function(stDat, patDat, patLab, genes, iter) {
   
-  path.data = '/N/project/degas_st/cosmyx/data/DEGAS/'
-  path.result = '/N/project/degas_st/cosmyx/lihc_output_Nov14/'
+  path.data = '/N/project/degas_st/cosmyx/data/DEGAS/' #give the path where the data are stored
+  path.result = '/N/project/degas_st/cosmyx/lihc_output_Nov14/' #this is your output directory
   initDEGAS()
-  DEGAS.toolsPath <<- '/N/project/degas_st/DEGAS_package/DEGAS/tools/'
-  # overwrite the DEGAS path with your python location (module load deeplearning/2.9.1)
-  DEGAS.pyloc <<- '/N/soft/rhel8/deeplearning/Python-3.10.10/bin/python3.10'
-  tmpDir = paste0(path.result, 'tmp/')
-  #DEGAS.seed <<- 100
+  DEGAS.toolsPath <<- '/N/project/degas_st/DEGAS_package/DEGAS/tools/' #this is where DEGAS tools and required functions can be called from.  
+  DEGAS.pyloc <<- '/N/soft/rhel8/deeplearning/Python-3.10.10/bin/python3.10' # overwrite the DEGAS path with your python location
+  tmpDir = paste0(path.result, 'tmp/') #this is where Activation functions, biaseses etc. will be stored after model training
+  
 
   set_seed_term(2)
   ccoxModel_PRAD =
@@ -135,6 +126,9 @@ i=length(genes)
 
 
 # ########## new DEGAS----
+# if there are too many cells and system runs out of memory, use the subsampled version of the 
+# model training function
+
 # path.result = '/N/project/degas_st/cosmyx/lihc_output_Nov14/'
 # tmpDir = paste0(path.result, 'tmp/')
 
