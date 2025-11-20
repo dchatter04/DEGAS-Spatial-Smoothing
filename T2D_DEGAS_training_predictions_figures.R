@@ -168,7 +168,7 @@ boxplot1 <- ggplot(df_tmp, aes(x = group, y = scaled_haz, fill = group)) +
   scale_fill_manual(values = c("ND1" = "blue", "T2D1" = "red", "ND2" = "blue", "T2D2" = "red")) +
   geom_text_repel(data = p_df, aes(x = xpos, y = ypos, label = label), inherit.aes = FALSE)
 
-ggsave("/Users/dchatter/Library/CloudStorage/OneDrive-IndianaUniversity/DEGAS/T2D/Travis_fixed_042025/boxplot_bysamples_scaled_06132025.pdf",boxplot1)
+ggsave("~/boxplot_bysamples_scaled.pdf",boxplot1)
 
 
 # disease p-values calculation
@@ -200,7 +200,7 @@ boxplot2 <- ggplot(df_tmp, aes(x = group2, y = scaled_haz, fill = group2)) +
   scale_fill_manual(values = c("ND" = "blue", "T2D" = "red")) +
   geom_text_repel(data = p_vals3, aes(x = xpos, y = ypos, label = label), inherit.aes = FALSE)
 
-ggsave("/Users/dchatter/Library/CloudStorage/OneDrive-IndianaUniversity/DEGAS/T2D/Travis_fixed_042025/boxplot_bydisease_scaled_06132025.pdf",boxplot2)
+ggsave("~/boxplot_bydisease_scaled.pdf",boxplot2)
 
 
 
