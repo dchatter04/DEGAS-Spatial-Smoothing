@@ -1,8 +1,0 @@
-# Analysis for LIHC samples from CosMx
-
-# Step 1 Bulk RNA-seq data cleanup
-# Step 2 Preprocessing
-# Step 3 DEGAS model training and predictions
-# Step 4 Postprocessing smoothing
-# Step 5 Other relevant plots
-
