@@ -24,14 +24,14 @@
 
 ## **Step 3 DEGAS model training and predictions**
 
-* Run the code **Model_training_and_prediction.R**
+* Run the code **CosMx_DEGAS_modeltraining.R**
 * Align the bulkRNA-seq and scSRT data with common set of highly variable genes and train the model. Save the trained model in **model1.RDS** file.
 * Obtain the saved patient -level predictions in **preds1.csv** file.
 
 ## **Step 4 Postprocessing smoothing**
 
-* Run the code **SwiS_smoothing.R**
-* Sliding Window (**swSmoothAtlas**) function is provided in the list of functions document.
+* Run the code **FOVs_smoothing.R**
+* Fov-based smoothing (**swSmoothAtlas**) function is provided in the list of functions document.
 * Smoothed predictions for each sample is individually stored in **swSmoothed_ND1.rds**, **swSmoothed_T2D1.rds**, **swSmoothed_ND2.rds**, and **swSmoothed_T2D2.rds** respectively.
 
 ## **Step 5 Other relevant plots**
