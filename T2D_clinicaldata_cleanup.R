@@ -2,7 +2,7 @@ library(tidyverse)
 library(DEGAS)
 
 # Read in data
-patDat <- data.table::fread('~/T2D_bulkRNAseqdat.csv')
+patDat <- data.table::fread('~/bulkRNA_seq_Diabetes.csv')
 
 # Fix column names
 patnames <- colnames(patDat)[-1]
@@ -14,7 +14,7 @@ patLab <- tibble(patnames, status = ifelse(str_detect(patnames, 'ND'), 'no_disea
 # Output the cleaned dataset (Clinical data)
 patLab %>%
     select(patnames, t2d, no_disease) %>%
-    write_csv('~/T2D_patLab.csv')
+    write_csv('~/patLab.csv')
 
 
 # Output the cleaned dataset (Transcriptomic data)
@@ -28,4 +28,4 @@ colnames(patDat) <- append(c('patient'), gene_names)
 
 patDat <- cbind(patDat %>% select(patient), t(preprocessCounts(patDat[-1])))
 
-patDat %>% data.table::fwrite('~/T2D_patDat.csv')
+patDat %>% data.table::fwrite('~/patDat.csv')
