@@ -1,4 +1,4 @@
-##### Do this after you run the bulkRNAseq data cleanup code and save the LIHC_patDat.csv and LIHC_patLab.csv files
+##### Do this after you run the bulkRNAseq data cleanup code and save the patDat.csv and patLab.csv files
 library(devtools)
 library(withr)
 library(rprojroot)
