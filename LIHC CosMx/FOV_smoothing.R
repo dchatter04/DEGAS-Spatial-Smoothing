@@ -183,103 +183,6 @@ tester <-function(a){
 tester("a")
 
 
-#make another fucntion swSmoothAtlasCOSMX, inctead of patch selection, use the FOV that are already provided
-# replace the entire functions.
-
-swSmoothAtlas <- function(dat,xsz,ysz,step,pad,mincellsn,kNN,colx,coly,colv){
-  message("Start sliding window smoothing")
-  xmin = min(dat[,colx])
-  xmax = max(dat[,colx])
-  ymin = min(dat[,coly])
-  ymax = max(dat[,coly])
-  xmarker = xmin
-  ymarker = ymin
-  
-  # Retrieving barcodes for each patch
-  message("Begin patch annotation")
-  cell_sets = list()
-  i=0
-  finished = FALSE
-  while(!finished){
-    #get the barcodes for every FOV and put them here
-    #each element in the list will be the barcodes for each FOV
-    #set to keep=TRUE
-    i = i+1
-    if((xmarker+xsz)<xmax & (ymarker+ysz)<ymax){
-      bc_tmp = dat$barcodes[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz)]
-      keep_tmp = dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]>(xmarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]<(xmarker+xsz-pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]>(ymarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]<(ymarker+ysz+pad)
-      cell_sets[[i]] = data.frame(barcode=bc_tmp,keep=keep_tmp) 
-      xmarker = xmarker+step
-    }else if((xmarker+xsz)>xmax & (ymarker+ysz)<ymax){
-      bc_tmp = dat$barcodes[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz)]
-      keep_tmp = dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]>(xmarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]<(xmarker+xsz-pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]>(ymarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]<(ymarker+ysz+pad)
-      cell_sets[[i]] = data.frame(barcode=bc_tmp,keep=keep_tmp)
-      xmarker = xmin
-      ymarker = ymarker+step
-    }else if((xmarker+xsz)<xmax & (ymarker+ysz)>ymax){
-      bc_tmp = dat$barcodes[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz)]
-      keep_tmp = dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]>(xmarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]<(xmarker+xsz-pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]>(ymarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]<(ymarker+ysz+pad)
-      cell_sets[[i]] = data.frame(barcode=bc_tmp,keep=keep_tmp)
-      xmarker = xmarker+step
-    }else if((xmarker+xsz)>xmax & (ymarker+ysz)>ymax){
-      bc_tmp = dat$barcodes[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz)]
-      keep_tmp = dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]>(xmarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsx"]<(xmarker+xsz-pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]>(ymarker+pad) &
-        dat[dat[,colx]>xmarker&dat[,colx]<(xmarker+xsz)&dat[,coly]>ymarker&dat[,coly]<(ymarker+ysz),"locsy"]<(ymarker+ysz+pad)
-      cell_sets[[i]] = data.frame(barcode=bc_tmp,keep=keep_tmp)
-      finished = TRUE
-    }else{
-      message("ERROR: Encoding")
-    }
-  }
-  len_ss = length(cell_sets)
-  message(paste0("Patch Number: ",len_ss))
-  message("Completed patch annotation")
-  
-  # Smoothing cells in each patch
-  message("Begin patch smoothing")
-  q21 = floor(quantile(1:len_ss,seq(from=0.0,to=1.0,by=0.05)))
-  pb <- progress_bar$new(
-    format = "[:bar] :percent",
-    total = 21, clear = FALSE, width = 60)
-  smoothed = list()
-  j = 0
-  for(cell_set in cell_sets){
-    j=j+1
-    if(j%in%q21){pb$tick()}
-    Sys.sleep(2/100)
-    if(dim(cell_set)[1]>mincellsn){
-      smoothed_tmp = knnSmooth(as.numeric(dat[cell_set$barcode,colv]),as.matrix(dat[cell_set$barcode,c("locsx","locsy")]),kNN)
-      cell_barcode_tmp = cell_set$barcode[cell_set$keep==TRUE]
-      smoothed[[j]] = data.frame(barcode = cell_barcode_tmp, score = smoothed_tmp[cell_set$keep==TRUE])
-    }
-  }
-  message("Completed patch smoothing")
-  
-  # Combining smoothed scores 
-  message("Begin cell aggregation")
-  smoothed = smoothed[sapply(smoothed,function(x) !is.null(dim(x)[1]))]
-  smoothed = purrr::reduce(smoothed, full_join, by = "barcode")
-  smoothed2 = smoothed
-  rownames(smoothed2) = smoothed2$barcode
-  smoothed2$barcode = NULL
-  smoothed2$haz = rowMeans(smoothed2,na.rm=TRUE)
-  out = data.frame(barcodes=rownames(smoothed2),smoothed=smoothed2$haz)
-  message("Completed cell aggregation")
-  return(out)
-  message("Finished sliding window smoothing")
-}
-# set.seed(2)
 
 meta_data_columns <- c("V1", "cell_id", "slide_ID_numeric", "Run_Tissue_name", "x_FOV_px", "y_FOV_px", "qcFlagsFOV", "cellType", "niche")
 
@@ -334,7 +237,7 @@ intersecting_genes <-
 
 # Feature selection (top 200 most variable genes)
 genes <- patDat %>% select(all_of(intersecting_genes)) %>% apply(2, var) %>% sort(decreasing=TRUE) %>% names() %>% head(200)
-#DEGAS.model = readRDS("/N/project/degas_st/cosmyx/degas_output/liver_coxmyx_200_2024-03-06.RDS")
+# Load the DEGAS model output from the previous code
 DEGAS.model = readRDS("/N/project/degas_st/cosmyx/lihc_output_Nov14/lihc_allgenes_200_2025-11-15.RDS")
 
 ## Post processing smoothing
@@ -352,33 +255,33 @@ st_data_cancer=st_data[st_data$Run_Tissue_name=="CancerousLiver",]
 st_data_list <- list(st_data_normal,st_data_cancer)
 names(st_data_list) <- c("normal", "cancer")
 
-# for( i in seq_along(st_data_list)){
-#   st_data = st_data_list[[i]]
+ for( i in seq_along(st_data_list)){
+   st_data = st_data_list[[i]]
 
-#   st_data2 = st_data%>%select(all_of(genes))
-#   patDat2=patDat%>%select(all_of(genes))
+   st_data2 = st_data%>%select(all_of(genes))
+   patDat2=patDat%>%select(all_of(genes))
 
-#   scpatPreds = predClassBag(DEGAS.model,st_data2,"pat") #predClassBag(ccModel, Exp, scORpat)
+   scpatPreds = predClassBag(DEGAS.model,st_data2,"pat") #predClassBag(ccModel, Exp, scORpat)
 
-#   model_output_scpat <-
-#     tibble(
-#       as_tibble(scpatPreds),
-#       cell_id = st_data$cell_id,
-#       fov = st_data$FOV,
-#       coord1 = st_data$x_slide_mm,
-#       coord2 = st_data$y_slide_mm,
-#       sample = st_data$slide_ID_numeric,
-#       cellType = st_data$cellType,
-#       niche = st_data$niche)
+  model_output_scpat <-
+    tibble(
+       as_tibble(scpatPreds),
+       cell_id = st_data$cell_id,
+      fov = st_data$FOV,
+       coord1 = st_data$x_slide_mm,
+      coord2 = st_data$y_slide_mm,
+       sample = st_data$slide_ID_numeric,
+      cellType = st_data$cellType,
+      niche = st_data$niche)
 
-#   colnames(model_output_scpat)[1] <- "Hazard"
+  colnames(model_output_scpat)[1] <- "Hazard"
 
-#   model_output_scpat %<>% mutate(Haz_scaled = (Hazard - min(Hazard)) / (max(Hazard)- min(Hazard)), .before = 'Hazard')
+  model_output_scpat %<>% mutate(Haz_scaled = (Hazard - min(Hazard)) / (max(Hazard)- min(Hazard)), .before = 'Hazard')
 
-#   write.csv(model_output_scpat,file=paste0("/N/project/degas_st/cosmyx/degas_Debolina/model_output_scpat_",names(st_data_list)[i],".csv"))
-# }
+   write.csv(model_output_scpat,file=paste0("/N/project/degas_st/cosmyx/degas_Debolina/model_output_scpat_",names(st_data_list)[i],".csv"))
+}
 
-model_output_scpat <- read.csv("/N/project/degas_st/cosmyx/lihc_output_Nov14/lihc_allgenes_200_2025-11-15.csv")
+# model_output_scpat <- read.csv("/N/project/degas_st/cosmyx/lihc_output_Nov14/lihc_allgenes_200_2025-11-15.csv")
 
 umap.df <- read.csv("/N/project/degas_st/cosmyx/degas_Debolina/umap_df.csv")
 colnames(umap.df) <- c("cell_id","UMAP.1","UMAP.2")
@@ -809,12 +712,6 @@ p12 <- ggplot(result_cancer_no_outliers,aes(x=coord1,y=coord2,color=scaled_FOV_s
 ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Cancer/FOV_smoothed_cancer__no_outliers_Knn50_11132025.pdf",p12)
 
 
-
-
-
-
-
-
 ##############################################################################################
 #make the boxplots for Normal vs Cancer
 
@@ -884,7 +781,7 @@ boxplot1 <- ggplot(combined, aes(x = condition, y = scaled_haz, fill = condition
   xlab("Sample") +
   scale_fill_manual(values = c("Non-carcinoma" = "blue", "Carcinoma" = "red")) 
 
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/boxplot_scaled_raw_haz_06262025.pdf",boxplot1)
+ggsave("/N/project/degas_st/cosmyx/degas_Debolina/boxplot_scaled_raw_haz.pdf",boxplot1)
 
 head(combined)
 
@@ -931,286 +828,6 @@ barplot_means_horizontal <- ggplot(mean_data, aes(x = mean_scaled_haz, y = cellT
   xlab("Average LIHC Association Scores")
 
 # Save the plot
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/barplot_scaledhaz_bycelltype_06262025.pdf",
+ggsave("/N/project/degas_st/cosmyx/degas_Debolina/barplot_scaledhaz_bycelltype.pdf",
        barplot_means_horizontal, width = 10, height = 6)
 
-
-
-
-###############################
-
-#spatial smoothing only
-sptial_sm <- knnSmoothAtlas2(sc_data_all,c("cell_id","Hazard","coord1","coord2"),20,10000)
-rownames(sptial_sm) = sptial_sm$cell_id
-
-sptial_sm$scaled_smoothed_haz= toCorrCoeff(sptial_sm$smoothed)
-
-
-p1 <- ggplot(sptial_sm,aes(x=coord1,y=coord2,color=scaled_smoothed_haz)) + 
-  geom_point(alpha=0.9, size=0.5) + 
-  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = median(sptial_sm$scaled_smoothed_haz, na.rm = TRUE), 
-                        name = "LIHC\nAssociation")+
-  labs(
-    x = "X coordinates",  # Replace with your desired label
-    y = "Y coordinates"   # Replace with your desired label
-  ) +
-  theme_bw() +  # Sets white background
-  ggtitle("Non-carcinoma")+  # Adds a title
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(),         # Remove major gridlines
-        panel.grid.minor = element_blank(),         # Remove minor gridlines 
-        plot.title = element_text(size = 18, hjust=0.5),
-        axis.title = element_text(size = 16),
-        axis.text = element_text(size = 14),
-        axis.line = element_line(color = "black"),  # Keep axis lines
-        axis.ticks = element_line(color = "black"), # Keep axis ticks
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14)
-  )
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/spatial_smoothed_normal_Knn20_06262025.pdf",p1)
-
-head(sptial_sm)
-
-normal_UMAP_sm = readRDS("/N/project/degas_st/cosmyx/degas_Debolina/Normal/Normal_sm_20_10000.rds")
-colnames(normal_UMAP_sm)
-normal_UMAP_smoothed <- normal_UMAP_sm[,c("cell_id","shit")]
-colnames(normal_UMAP_smoothed) <- c("cell_id","UMAP_sm_pred")
-
-normal_pred_v2 <- merge(normal_pred,normal_UMAP_smoothed,by="cell_id")
-colnames(normal_pred_v2)
-
-smooth_by_fov <- function(df, kNN,locx,locy, mincells) {
-  unique_fovs <- unique(df$fov)
-  smoothed_list <- list()
-  pb <- progress_bar$new(format = "[:bar] :percent", total = length(unique_fovs), clear = FALSE, width = 60)
-
-  for (i in seq_along(unique_fovs)) {
-    fov_id <- unique_fovs[i]
-    pb$tick()
-
-    fov_data <- df %>% filter(fov == fov_id)
-    fov_data$x_FOV_px <- as.numeric(fov_data$x_FOV_px)
-    fov_data$y_FOV_px <- as.numeric(fov_data$y_FOV_px)
-    if (nrow(fov_data) >= mincells) {
-      coords <- as.matrix(fov_data[, c("x_FOV_px", "y_FOV_px")])
-      values <- fov_data$Hazard
-
-      smoothed_vals <- knnSmooth(values, coords, k = kNN)
-
-      smoothed_list[[i]] <- fov_data %>%
-        mutate(smoothed = smoothed_vals) %>%
-        select(cell_id, fov, coord1, coord2, x_FOV_px, y_FOV_px, Hazard, smoothed)
-
-
-    }else if (nrow(fov_data) > 0 & nrow(fov_data) < mincells) {
-    # Not enough cells — keep raw predictions instead of smoothing
-    message(paste("FOV", fov_id, "has fewer than", mincells, "cells. Using raw predictions."))
-    
-    smoothed_list[[i]] <- fov_data %>%
-        mutate(smoothed = Hazard) %>%
-        select(cell_id, fov, coord1, coord2, x_FOV_px, y_FOV_px, Hazard, smoothed)
- 
-
-    }
-  }
- message("Completed FOV-based smoothing")
-  
-  # Combine results
-  message("Begin aggregation")
-  smoothed_combined <- do.call(rbind, smoothed_list)
-  message("Finished smoothing and aggregation")
-  
-  return(smoothed_combined)
-}
-
-# run the smoothing
-#if the number of cells < mincellsn, then do not perform smoothing. otherwise perform smoothing
-
-result_normal <- smooth_by_fov(sc_data_all, kNN = 20, mincells = 21)
-head(result_normal)
-
-saveRDS(result_normal,file="/N/project/degas_st/cosmyx/degas_Debolina/FOV_smoothed_normal_kNN20_06262025.RDS")
-#plot the smoothed values
-result_normal$scaled_FOV_smoothed = toCorrCoeff(result_normal$smoothed)
-summary(result_normal$scaled_FOV_smoothed)
-boxplot((result_normal$scaled_FOV_smoothed))
-p11 <- ggplot(result_normal,aes(x=coord1,y=coord2,color=scaled_FOV_smoothed)) + 
-  geom_point(alpha=0.9, size=0.5) + 
-  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = median(result_normal$scaled_FOV_smoothed, na.rm = TRUE), 
-                        name = "LIHC\nAssociation")+
-  labs(
-    x = "X coordinates",  # Replace with your desired label
-    y = "Y coordinates"   # Replace with your desired label
-  ) +
-  theme_bw() +  # Sets white background
-  ggtitle("Non-carcinoma")+  # Adds a title
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(),         # Remove major gridlines
-        panel.grid.minor = element_blank(),         # Remove minor gridlines 
-        plot.title = element_text(size = 18, hjust=0.5),
-        axis.title = element_text(size = 16),
-        axis.text = element_text(size = 14),
-        axis.line = element_line(color = "black"),  # Keep axis lines
-        axis.ticks = element_line(color = "black"), # Keep axis ticks
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14)
-  )
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/FOV_smoothed_normal_Knn20_06262025.png",p11)
-
-
-# Remove outliers from result_normal$scaled_FOV_smoothed using the IQR method
-
-# Step 1: Calculate bounds
-x <- result_normal$scaled_FOV_smoothed
-Q1 <- quantile(x, 0.25, na.rm = TRUE)
-Q3 <- quantile(x, 0.75, na.rm = TRUE)
-IQR_val <- Q3 - Q1
-
-lower_bound <- Q1 - 1.5 * IQR_val
-upper_bound <- Q3 + 1.5 * IQR_val
-
-# Step 2: Identify non-outlier indices
-non_outlier_idx <- which(x >= lower_bound & x <= upper_bound)
-
-# Step 3: Filter the vector
-result_normal$scaled_FOV_smoothed_no_outliers <- x
-result_normal$scaled_FOV_smoothed_no_outliers[-non_outlier_idx] <- NA  # Set outliers to NA
-
-# Optional: Create a new data frame with only non-outlier rows
-result_normal_no_outliers <- result_normal[non_outlier_idx, ]
-
-# View result
-print(head(result_normal_no_outliers))
-dim(result_normal_no_outliers)
-
-
-
-p12 <- ggplot(result_normal_no_outliers,aes(x=coord1,y=coord2,color=scaled_FOV_smoothed)) + 
-  geom_point(alpha=0.9, size=0.5) + 
-  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = median(result_normal_no_outliers$scaled_FOV_smoothed, na.rm = TRUE), 
-                        name = "LIHC\nAssociation")+
-  labs(
-    x = "X coordinates",  # Replace with your desired label
-    y = "Y coordinates"   # Replace with your desired label
-  ) +
-  theme_bw() +  # Sets white background
-  ggtitle("Non-carcinoma")+  # Adds a title
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(),         # Remove major gridlines
-        panel.grid.minor = element_blank(),         # Remove minor gridlines 
-        plot.title = element_text(size = 18, hjust=0.5),
-        axis.title = element_text(size = 16),
-        axis.text = element_text(size = 14),
-        axis.line = element_line(color = "black"),  # Keep axis lines
-        axis.ticks = element_line(color = "black"), # Keep axis ticks
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14)
-  )
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/FOV_smoothed_normal__no_outliers_Knn20_06262025.pdf",p12)
-
-
-
-
-
-
-
-
-##cancer
-
-result_cancer <- smooth_by_fov(sc_data_all_cancer, kNN = 20, mincells = 21)
-saveRDS(result_cancer,file="/N/project/degas_st/cosmyx/degas_Debolina/FOV_smoothed_cancer_kNN20_06262025.RDS")
-#plot the smoothed values
-result_cancer$scaled_FOV_smoothed = toCorrCoeff(result_cancer$smoothed)
-p22 <- ggplot(result_cancer,aes(x=coord1,y=coord2,color=scaled_FOV_smoothed)) + 
-  geom_point(alpha=0.9, size=0.5) + 
-  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = median(result_cancer$scaled_FOV_smoothed, na.rm = TRUE), 
-                        name = "LIHC\nAssociation")+
-  labs(
-    x = "X coordinates",  # Replace with your desired label
-    y = "Y coordinates"   # Replace with your desired label
-  ) +
-  theme_bw() +  # Sets white background
-  ggtitle("Carcinoma")+  # Adds a title
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(),         # Remove major gridlines
-        panel.grid.minor = element_blank(),         # Remove minor gridlines 
-        plot.title = element_text(size = 18, hjust=0.5),
-        axis.title = element_text(size = 16),
-        axis.text = element_text(size = 14),
-        axis.line = element_line(color = "black"),  # Keep axis lines
-        axis.ticks = element_line(color = "black"), # Keep axis ticks
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14)
-  )
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Cancer/FOV_smoothed_cancer_Knn20_06262025.png",p22)
-
-# Step 1: Calculate bounds
-x <- result_cancer$scaled_FOV_smoothed
-Q1 <- quantile(x, 0.25, na.rm = TRUE)
-Q3 <- quantile(x, 0.75, na.rm = TRUE)
-IQR_val <- Q3 - Q1
-
-lower_bound <- Q1 - 1.5 * IQR_val
-upper_bound <- Q3 + 1.5 * IQR_val
-
-# Step 2: Identify non-outlier indices
-non_outlier_idx <- which(x >= lower_bound & x <= upper_bound)
-
-# Step 3: Filter the vector
-result_cancer$scaled_FOV_smoothed_no_outliers <- x
-result_cancer$scaled_FOV_smoothed_no_outliers[-non_outlier_idx] <- NA  # Set outliers to NA
-
-# Optional: Create a new data frame with only non-outlier rows
-result_cancer_no_outliers <- result_cancer[non_outlier_idx, ]
-
-# View result
-print(head(result_cancer_no_outliers))
-dim(result_cancer_no_outliers)
-
-
-p22 <- ggplot(result_cancer_no_outliers,aes(x=coord1,y=coord2,color=scaled_FOV_smoothed)) + 
-  geom_point(alpha=0.9, size=0.5) + 
-  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = median(result_cancer_no_outliers$scaled_FOV_smoothed, na.rm = TRUE), 
-                        name = "LIHC\nAssociation")+
-  labs(
-    x = "X coordinates",  # Replace with your desired label
-    y = "Y coordinates"   # Replace with your desired label
-  ) +
-  theme_bw() +  # Sets white background
-  ggtitle("Carcinoma")+  # Adds a title
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(),         # Remove major gridlines
-        panel.grid.minor = element_blank(),         # Remove minor gridlines 
-        plot.title = element_text(size = 18, hjust=0.5),
-        axis.title = element_text(size = 16),
-        axis.text = element_text(size = 14),
-        axis.line = element_line(color = "black"),  # Keep axis lines
-        axis.ticks = element_line(color = "black"), # Keep axis ticks
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14)
-  )
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Cancer/FOV_smoothed_cancer__no_outliers_Knn20_06262025.png",p22)
-
-
-
-
-library(pROC)
-model_output_patpat <- read.csv("/N/project/degas_st/cosmyx/degas_Debolina/model_output_patpat.csv")
-head(model_output_patpat)
-  # AUC in patients
-roc_result <- roc(model_output_patpat$OS_status,model_output_patpat$Hazard)
-
-pdf(file=paste0("/N/project/degas_st/cosmyx/degas_Debolina/ROC_curve_06262025.pdf"))
-plot(roc_result, col = "blue", lwd = 3, legacy.axes = TRUE,
-     main = "", xlab = "", ylab = "", axes = FALSE, frame.plot = FALSE)
-# Add custom axes
-axis(1, cex.axis = 1.4)
-axis(2, cex.axis = 1.4, las=1)
-mtext("1 - Specificity", side = 1, line = 3, cex = 1.4, font = 1)
-mtext("Sensitivity", side = 2, line = 3, cex = 1.4, font = 1)
-title(main = "ROC Curve", cex.main = 1.4, font.main = 1)
-
-# Add AUC text
-text(0.5, 0.1, labels = paste("AUC =", round(as.numeric(roc_result$auc), 4)), col = "red", cex = 1.4, font = 2)
-
-dev.off()
