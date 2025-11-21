@@ -155,6 +155,50 @@ knnSmoothAtlas2 <- function(sc_data,col_names,k,n_split){
 }
 
 
+smooth_by_fov <- function(df, kNN,locx,locy, mincells) {
+  unique_fovs <- unique(df$fov)
+  smoothed_list <- list()
+  pb <- progress_bar$new(format = "[:bar] :percent", total = length(unique_fovs), clear = FALSE, width = 60)
+  
+  for (i in unique_fovs) {
+    fov_id <- i
+    pb$tick()
+    
+    fov_data <- df %>% filter(fov == fov_id)
+    fov_data$x_FOV_px <- as.numeric(fov_data$x_FOV_px)
+    fov_data$y_FOV_px <- as.numeric(fov_data$y_FOV_px)
+    if (nrow(fov_data) >= mincells) {
+      coords <- as.matrix(fov_data[, c("x_FOV_px", "y_FOV_px")])
+      values <- fov_data$Hazard
+      smoothed_vals <- knnSmooth(values, coords, k = kNN)
+      
+      smoothed_list[[i]] <- fov_data %>%
+        mutate(smoothed = smoothed_vals) %>%
+        select(cell_id, fov, coord1, coord2, x_FOV_px, y_FOV_px, Hazard, smoothed)
+      
+      
+    }else if (nrow(fov_data) > 0 & nrow(fov_data) < mincells) {
+      # Not enough cells — keep raw predictions instead of smoothing
+      message(paste("FOV", fov_id, "has fewer than", mincells, "cells. Using raw predictions."))
+      
+      smoothed_list[[i]] <- fov_data %>%
+        mutate(smoothed = Hazard) %>%
+        select(cell_id, fov, coord1, coord2, x_FOV_px, y_FOV_px, Hazard, smoothed)
+      
+      
+    }
+  }
+  message("Completed FOV-based smoothing")
+  
+  # Combine results
+  message("Begin aggregation")
+  smoothed_combined <- do.call(rbind, smoothed_list)
+  message("Finished smoothing and aggregation")
+  
+  return(smoothed_combined)
+}
+
+                #################### Analysis #####################
 library(foreach)
 library(doParallel)
 library(progress)
@@ -468,50 +512,6 @@ ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/spatial_smoothed_normal
 
 #### option 2: include he FOV based smoothign with it as well
 
-
-smooth_by_fov <- function(df, kNN,locx,locy, mincells) {
-  unique_fovs <- unique(df$fov)
-  smoothed_list <- list()
-  pb <- progress_bar$new(format = "[:bar] :percent", total = length(unique_fovs), clear = FALSE, width = 60)
-  
-  for (i in unique_fovs) {
-    fov_id <- i
-    pb$tick()
-    
-    fov_data <- df %>% filter(fov == fov_id)
-    fov_data$x_FOV_px <- as.numeric(fov_data$x_FOV_px)
-    fov_data$y_FOV_px <- as.numeric(fov_data$y_FOV_px)
-    if (nrow(fov_data) >= mincells) {
-      coords <- as.matrix(fov_data[, c("x_FOV_px", "y_FOV_px")])
-      values <- fov_data$Hazard
-      #values <- toCorrCoeff(fov_data$Hazard)
-      smoothed_vals <- knnSmooth(values, coords, k = kNN)
-      
-      smoothed_list[[i]] <- fov_data %>%
-        mutate(smoothed = smoothed_vals) %>%
-        select(cell_id, fov, coord1, coord2, x_FOV_px, y_FOV_px, Hazard, smoothed)
-      
-      
-    }else if (nrow(fov_data) > 0 & nrow(fov_data) < mincells) {
-      # Not enough cells — keep raw predictions instead of smoothing
-      message(paste("FOV", fov_id, "has fewer than", mincells, "cells. Using raw predictions."))
-      
-      smoothed_list[[i]] <- fov_data %>%
-        mutate(smoothed = Hazard) %>%
-        select(cell_id, fov, coord1, coord2, x_FOV_px, y_FOV_px, Hazard, smoothed)
-      
-      
-    }
-  }
-  message("Completed FOV-based smoothing")
-  
-  # Combine results
-  message("Begin aggregation")
-  smoothed_combined <- do.call(rbind, smoothed_list)
-  message("Finished smoothing and aggregation")
-  
-  return(smoothed_combined)
-}
 
 # run the smoothing
 #if the number of cells < mincellsn, then do not perform smoothing. otherwise perform smoothing
