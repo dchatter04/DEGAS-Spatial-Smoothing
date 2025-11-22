@@ -1,4 +1,6 @@
-# Integrating spatial smoothing with Diagnostic Evidence GAuge of Single cells (DEGAS): A flexible deep transfer learning framework for prioritizing cells in relation to disease https://github.com/tsteelejohnson91/DEGAS
+# Integrating spatial smoothing with Diagnostic Evidence GAuge of Single cells (DEGAS): A flexible deep transfer learning framework for prioritizing cells in relation to disease 
+
+# The main DEGAS fucntions are in https://github.com/tsteelejohnson91/DEGAS
 
 # DEGAS installation guide
 * Step1 Install python3 and pip3 if not previously installed 
