@@ -23,7 +23,7 @@
 ## **Step 4 Postprocessing smoothing**
 
 * Run the code **FOVs_smoothing.R**
-* Fov-based smoothing (**swSmoothAtlas**) function is provided in the list of functions document.
-* Smoothed predictions for each sample is individually stored in **swSmoothed_ND1.rds**, **swSmoothed_T2D1.rds**, **swSmoothed_ND2.rds**, and **swSmoothed_T2D2.rds** respectively.
+* Fov-based smoothing (**smooth_by_fov**) function is provided in the list of functions document.
+* Smoothed predictions for each sample is individually stored.
 
 
