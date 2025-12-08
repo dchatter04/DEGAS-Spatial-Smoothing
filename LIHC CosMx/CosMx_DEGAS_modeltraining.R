@@ -1,3 +1,5 @@
+########## Find all datasets in https://www.synapse.org/Synapse:syn71737248/files ####
+
 ##### Do this after you run the bulkRNAseq data cleanup code and save the patDat.csv and patLab.csv files
 
 #r/4.4.1
@@ -69,15 +71,15 @@ genes <- patDat %>% select(all_of(intersecting_genes)) %>% apply(2, var) %>% sor
 # Initialize function to run DEGAS iteratively across increasing number of feature sets.
 runDEGASBlankCox <- function(stDat, patDat, patLab, genes, iter) {
   
-  path.data = '/N/project/degas_st/cosmyx/data/DEGAS/'
-  path.result = '/N/project/degas_st/cosmyx/lihc_output_Nov14/'
+  path.data = '/N/project/degas_st/cosmyx/data/DEGAS/' #this is the directory where all preprocesses data is stored
+  path.result = '/N/project/degas_st/cosmyx/lihc_output_Nov14/' #this is the path  where the results will be stored
   initDEGAS()
-  DEGAS.toolsPath <<- '/N/project/degas_st/DEGAS_package/DEGAS/tools/'
+  DEGAS.toolsPath <<- '/N/project/degas_st/DEGAS_package/DEGAS/tools/' #this is the folder where the DEGAS R library is stored and the "tools" folder within that
   # overwrite the DEGAS path with your python location
-  DEGAS.pyloc <<- '/N/soft/rhel8/deeplearning/Python-3.10.10/bin/python3.10'
-  tmpDir = paste0(path.result, 'tmp/')
+  DEGAS.pyloc <<- '/N/soft/rhel8/deeplearning/Python-3.10.10/bin/python3.10' #this is the location of the python in your computer
+  tmpDir = paste0(path.result, 'tmp/') #this is the temporary directory that will be created to store all putputs, activation functions and bias parameters
  
-  set_seed_term(2)
+  set_seed_term(2) #this is the random seed you set to run the model
   ccoxModel_PRAD =
     runCCMTLBag(
       scExp = stDat %>% select(all_of(genes)),
@@ -87,8 +89,7 @@ runDEGASBlankCox <- function(stDat, patDat, patLab, genes, iter) {
       tmpDir = tmpDir,
       'BlankCox','DenseNet',3,5)
 
-  saveRDS(ccoxModel_PRAD, file = paste0('/N/project/degas_st/cosmyx/lihc_output_Nov14/',iter, "_",  Sys.Date(), '.RDS'))
-
+  saveRDS(ccoxModel_PRAD, file = "~/model1.RDS")) #save the file in your desired directory as model1.RDS
   model_output <-
     tibble(
       as_tibble(predClassBag(ccoxModel_PRAD,
@@ -104,7 +105,7 @@ runDEGASBlankCox <- function(stDat, patDat, patLab, genes, iter) {
 
   colnames(model_output)[1] <- "Hazard"
 
-  model_output %<>% mutate(Haz_scaled = (Hazard - min(Hazard)) / max(Hazard), .before = 'Hazard')
+  model_output %<>% mutate(Haz_scaled = (Hazard - min(Hazard)) / max(Hazard), .before = 'Hazard') #min-max scaling for the hazard score
 
   return(model_output)
 }
@@ -122,4 +123,4 @@ i=length(genes)
 
   med <- output %>% pull(Hazard) %>% median
 
-  write_csv(output, file = paste0('/N/project/degas_st/cosmyx/lihc_output_Nov14/',iter, "_",  Sys.Date(), '.csv'))
+  write_csv(output, file = "~/preds1.csv")) #save file in your desired directory as preds1.csv
