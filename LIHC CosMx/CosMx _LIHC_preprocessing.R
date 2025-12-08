@@ -1,6 +1,6 @@
 library(tidyverse)
 
-st_data <- data.table::fread('/N/project/degas_st/cosmyx/Cosmx_liver_metadata.csv')
+st_data <- data.table::fread('/N/project/degas_st/cosmyx/cosmx_liver_metadata.csv')
 
 meta_data_columns <- c("V1", "cell_id", "slide_ID_numeric", "Run_Tissue_name", "x_FOV_px", "y_FOV_px", "qcFlagsFOV", "cellType", "niche")
 
