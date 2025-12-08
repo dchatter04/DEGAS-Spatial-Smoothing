@@ -410,11 +410,8 @@ df_c_summary
 summary(df_c_summary$cell_count)
 
 
-dim(meta_df.normal)
-dim(normal_pred)
-all.equal(meta_df.normal$cellType,normal_pred$cellType)
-
 model_output_scpat[1:5,1:5]
+                             
 ###### Smoothing for the Normal sample
 normal_pred <- model_output_scpat[model_output_scpat$sample==1,]
 str(normal_pred)
@@ -523,7 +520,7 @@ ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/FOV_smoothed_normal__no
 #################################################################################################
 
 ###### Smoothing for the Cancer sample----
-cancer_pred <- read.csv("/N/project/degas_st/cosmyx/degas_Debolina/model_output_scpat_cancer.csv")
+cancer_pred <- model_output_scpat[model_output_scpat$sample==2,]
 cancer_pred <- cancer_pred[order(cancer_pred$cell_id),]
 
 sc_data_all <- merge(cancer_pred,umap.df.cancer,by="cell_id")
