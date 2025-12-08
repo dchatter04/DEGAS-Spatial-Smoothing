@@ -38,7 +38,7 @@ patDat <- patDat %>% inner_join(patLab)
 #this is the metadata associated with the CosMx data obtained from https://nanostring.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-liver-rna-ffpe-dataset/###
 meta_df <- read_csv('~/cosmx_liver_metadata.csv') # To get the coordinates
 
-st_data <- data.table::fread('~/cosmyx_liver_data.csv')
+st_data <- data.table::fread('~/cosmyx_liver_countdata.csv')
 
 st_data <- st_data %>%
   mutate(FOV = str_replace(str_replace(cell_id, "c_[:digit:]_", ""), "_[:digit:].*$", ""), .before = cell_id)
