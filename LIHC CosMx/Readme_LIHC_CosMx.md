@@ -1,5 +1,6 @@
 # Analysis for LIHC samples from CosMx
 
+** FINA ALL DATASETS in https://www.synapse.org/Synapse:syn71737248/files/**
 ## **Step 1 Bulk RNA-seq data cleanup**
 
 * Download the bulkRNA-seq gene expression and clinical data from https://gdac.broadinstitute.org/ your local Drive.
