@@ -235,11 +235,10 @@ sample_name <- "liver_coxmyx"
 
 # Patient data
 ## RNA-seq
-patDat <- data.table::fread('/N/project/degas_st/cosmyx/data/TCGA/patDat.csv', sep = ",") # Tumor and normal tissue
-# patDat <- data.table::fread('/N/project/degas_st/cosmyx/data/TCGA/patDat_tumor.csv', sep = ",") # Only tumor tissue
+patDat <- data.table::fread('~/patDat.csv', sep = ",") # Tumor and normal tissue
 
 ## Clinical outcomes
-patLab <- data.table::fread('/N/project/degas_st/cosmyx/data/Reference_liver/patLab.csv', sep = ",")
+patLab <- data.table::fread('~/patLab.csv', sep = ",")
 
 # Need non NA follow up time and status
 patLab <- patLab %>% filter(!is.na(OS_time))
@@ -248,9 +247,9 @@ patLab <- patLab %>% filter(!is.na(OS_time))
 patDat <- patDat %>% inner_join(patLab)
 
 # ST data (cosmyx)
-meta_df <- read_csv('/N/project/degas_st/CosMx_liver_data/cosmx_liver_metadata.csv') # To get the coordinates
+meta_df <- read_csv('~/cosmx_liver_metadata.csv') # To get the coordinates
 
-st_data <- data.table::fread('/N/project/degas_st/cosmyx/data/processed/liver/cosmyx_liver_data.csv')
+st_data <- data.table::fread('~/cosmyx_liver_countdata.csv')
 
 
 #plot(st_data$x_FOV_px,st_data$y_FOV_px)
@@ -282,7 +281,7 @@ intersecting_genes <-
 # Feature selection (top 200 most variable genes)
 genes <- patDat %>% select(all_of(intersecting_genes)) %>% apply(2, var) %>% sort(decreasing=TRUE) %>% names() %>% head(200)
 # Load the DEGAS model output from the previous code
-DEGAS.model = readRDS("/N/project/degas_st/cosmyx/lihc_output_Nov14/lihc_allgenes_200_2025-11-15.RDS")
+DEGAS.model = readRDS("~/model1.RDS")
 
 ## Post processing smoothing
 
@@ -299,33 +298,8 @@ st_data_cancer=st_data[st_data$Run_Tissue_name=="CancerousLiver",]
 st_data_list <- list(st_data_normal,st_data_cancer)
 names(st_data_list) <- c("normal", "cancer")
 
- for( i in seq_along(st_data_list)){
-   st_data = st_data_list[[i]]
 
-   st_data2 = st_data%>%select(all_of(genes))
-   patDat2=patDat%>%select(all_of(genes))
-
-   scpatPreds = predClassBag(DEGAS.model,st_data2,"pat") #predClassBag(ccModel, Exp, scORpat)
-
-  model_output_scpat <-
-    tibble(
-       as_tibble(scpatPreds),
-       cell_id = st_data$cell_id,
-      fov = st_data$FOV,
-       coord1 = st_data$x_slide_mm,
-      coord2 = st_data$y_slide_mm,
-       sample = st_data$slide_ID_numeric,
-      cellType = st_data$cellType,
-      niche = st_data$niche)
-
-  colnames(model_output_scpat)[1] <- "Hazard"
-
-  model_output_scpat %<>% mutate(Haz_scaled = (Hazard - min(Hazard)) / (max(Hazard)- min(Hazard)), .before = 'Hazard')
-
-   write.csv(model_output_scpat,file=paste0("/N/project/degas_st/cosmyx/degas_Debolina/model_output_scpat_",names(st_data_list)[i],".csv"))
-}
-
-# model_output_scpat <- read.csv("/N/project/degas_st/cosmyx/lihc_output_Nov14/lihc_allgenes_200_2025-11-15.csv")
+ model_output_scpat <- read.csv("~/preds1.csv")
 
 umap.df <- read.csv("/N/project/degas_st/cosmyx/degas_Debolina/umap_df.csv")
 colnames(umap.df) <- c("cell_id","UMAP.1","UMAP.2")
@@ -338,12 +312,6 @@ head(umap.df)
 
 umap.df.normal <- umap.df[which(umap.df$sample=="NormalLiver"),] #umap embeddings for normal sample
 umap.df.cancer <- umap.df[which(umap.df$sample=="CancerousLiver"),] #umap embeddings for cancer sample
-
-meta_df <- read_csv('/N/project/degas_st/CosMx_liver_data/cosmx_liver_metadata.csv') # To get the spatial coordinates
-#meta_df <- read_csv("/N/u/dchatter/Quartz/thindrives/OneDrive-IndianaUniversity/DEGAS/CosMx liver data/cosmx_liver_metadata.csv")
-colnames(meta_df)
-st_data <- data.table::fread('/N/project/degas_st/cosmyx/data/processed/liver/cosmyx_liver_data.csv')
-
 
 #all.equal(meta_df$...1,meta_df$cell_id)
 #separate this as normal and cancer
