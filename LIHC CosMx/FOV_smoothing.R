@@ -301,7 +301,7 @@ names(st_data_list) <- c("normal", "cancer")
 
  model_output_scpat <- read.csv("~/preds1.csv")
 
-umap.df <- read.csv("/N/project/degas_st/cosmyx/degas_Debolina/umap_df.csv")
+umap.df <- read.csv("~/umap_df.csv")
 colnames(umap.df) <- c("cell_id","UMAP.1","UMAP.2")
 # Create a new column based on row names
 umap.df$sample <- ifelse(grepl("^c_1", umap.df$cell_id), "NormalLiver",
@@ -445,40 +445,8 @@ sc_data_all <- merge(normal_pred,umap.df.normal,by="cell_id")
 
 head(sc_data_all)
 dim(sc_data_all)
-##### option 1: run the simple KNN k=20 and k =50 smoothing that was already done
 
-#spatial smoothing only
-sptial_sm <- knnSmoothAtlas2(sc_data_all,c("cell_id","Hazard","coord1","coord2"),50,10000)
-rownames(sptial_sm) = sptial_sm$cell_id
-sptial_sm$scaled_smoothed_haz= toCorrCoeff(sptial_sm$smoothed)
-head(sptial_sm)
-
-p1 <- ggplot(sptial_sm,aes(x=coord1,y=coord2,color=scaled_smoothed_haz)) + 
-  geom_point(alpha=0.9, size=0.5) + 
-  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = median(sptial_sm$scaled_smoothed_haz, na.rm = TRUE), 
-                        name = "LIHC\nAssociation")+
-  labs(
-    x = "X coordinates",  # Replace with your desired label
-    y = "Y coordinates"   # Replace with your desired label
-  ) +
-  theme_bw() +  # Sets white background
-  ggtitle("Non-carcinoma")+  # Adds a title
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(),         # Remove major gridlines
-        panel.grid.minor = element_blank(),         # Remove minor gridlines 
-        plot.title = element_text(size = 18, hjust=0.5),
-        axis.title = element_text(size = 16),
-        axis.text = element_text(size = 14),
-        axis.line = element_line(color = "black"),  # Keep axis lines
-        axis.ticks = element_line(color = "black"), # Keep axis ticks
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14)
-  )
-#ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/spatial_smoothed_normal_Knn20_06262025.pdf",p1)
-ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/spatial_smoothed_normal_Knn50_11132025.pdf",p1)
-
-
-#### option 2: include he FOV based smoothign with it as well
+#### Include he FOV based smoothign with it as well
 
 
 # run the smoothing
@@ -495,9 +463,6 @@ p1 <- ggplot(result_normal,aes(x=coord1,y=coord2,color=scaled_FOV_smoothed)) +
                         name = "LIHC_risk")+
   ggtitle("Smoothed LIHC risk")
 ggsave("/N/project/degas_st/cosmyx/degas_Debolina/Normal/scaled_FOV_smoothed_normal_Knn50_11132025.pdf",p1)
-
-#outlier removed version also
-
 
 
 # Remove outliers from result_normal$scaled_FOV_smoothed using the IQR method
